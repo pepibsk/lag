@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latency Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .slider {
+            width: 300px;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Latency Tester</h1>
+    <p>Test if you can detect a latency between the animation and sound.</p>
+
+    <div class="animation">
+        <div id="circle" style="width: 50px; height: 50px; background-color: red; border-radius: 50%; margin: 20px auto;"></div>
+    </div>
+
+    <div class="controls">
+        <label for="latency">Set Latency (ms): <span id="latency-value">0</span></label>
+        <input type="range" id="latency" class="slider" min="0" max="1000" value="0" step="10">
+        <br>
+        <button id="start-test">Start Test</button>
+    </div>
+
+    <audio id="sound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+
+    <script>
+        const circle = document.getElementById('circle');
+        const sound = document.getElementById('sound');
+        const latencySlider = document.getElementById('latency');
+        const latencyValue = document.getElementById('latency-value');
+        const startButton = document.getElementById('start-test');
+
+        latencySlider.addEventListener('input', () => {
+            latencyValue.textContent = latencySlider.value;
+        });
+
+        startButton.addEventListener('click', () => {
+            const latency = parseInt(latencySlider.value);
+
+            // Start the animation
+            circle.style.transition = 'transform 0.5s';
+            circle.style.transform = 'scale(1.5)';
+
+            setTimeout(() => {
+                sound.play();
+            }, latency);
+
+            // Reset the animation after 1 second
+            setTimeout(() => {
+                circle.style.transform = 'scale(1)';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
