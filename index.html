@@ -34,7 +34,7 @@
         <button id="start-test">Start Test</button>
     </div>
 
-    <audio id="sound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+    <audio id="sound" src="https://www.soundjay.com/button/beep-07.mp3" preload="auto"></audio>
 
     <script>
         const circle = document.getElementById('circle');
@@ -55,6 +55,7 @@
             circle.style.transform = 'scale(1.5)';
 
             setTimeout(() => {
+                sound.currentTime = 0; // Reset audio to start
                 sound.play();
             }, latency);
 
