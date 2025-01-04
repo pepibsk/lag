@@ -34,14 +34,22 @@
         <button id="start-test">Start Test</button>
     </div>
 
-    <audio id="sound" src="https://www.soundjay.com/button/beep-07.mp3" preload="auto"></audio>
-
     <script>
         const circle = document.getElementById('circle');
-        const sound = document.getElementById('sound');
         const latencySlider = document.getElementById('latency');
         const latencyValue = document.getElementById('latency-value');
         const startButton = document.getElementById('start-test');
+
+        // Create a simple tone
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(duration) {
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+            oscillator.connect(audioContext.destination);
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), duration);
+        }
 
         latencySlider.addEventListener('input', () => {
             latencyValue.textContent = latencySlider.value;
@@ -55,8 +63,7 @@
             circle.style.transform = 'scale(1.5)';
 
             setTimeout(() => {
-                sound.currentTime = 0; // Reset audio to start
-                sound.play();
+                playTone(200); // Play tone for 200ms
             }, latency);
 
             // Reset the animation after 1 second
