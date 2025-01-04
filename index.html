@@ -17,6 +17,14 @@
             width: 300px;
             margin: 20px auto;
         }
+        #circle {
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            border-radius: 50%;
+            margin: 20px auto;
+            transition: transform 0.1s ease-in-out, background-color 0.1s;
+        }
     </style>
 </head>
 <body>
@@ -24,21 +32,28 @@
     <p>Test if you can detect a latency between the animation and sound.</p>
 
     <div class="animation">
-        <div id="circle" style="width: 50px; height: 50px; background-color: red; border-radius: 50%; margin: 20px auto;"></div>
+        <div id="circle"></div>
     </div>
 
     <div class="controls">
         <label for="latency">Set Latency (ms): <span id="latency-value">0</span></label>
-        <input type="range" id="latency" class="slider" min="0" max="1000" value="0" step="10">
+        <input type="range" id="latency" class="slider" min="-1000" max="1000" value="0" step="10">
+        <br>
+        <label for="frequency">Set Repeat Frequency (ms): <span id="frequency-value">1000</span></label>
+        <input type="range" id="frequency" class="slider" min="200" max="5000" value="1000" step="100">
         <br>
         <button id="start-test">Start Test</button>
+        <button id="stop-test">Stop Test</button>
     </div>
 
     <script>
         const circle = document.getElementById('circle');
         const latencySlider = document.getElementById('latency');
         const latencyValue = document.getElementById('latency-value');
+        const frequencySlider = document.getElementById('frequency');
+        const frequencyValue = document.getElementById('frequency-value');
         const startButton = document.getElementById('start-test');
+        const stopButton = document.getElementById('stop-test');
 
         // Create a simple tone
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -51,25 +66,64 @@
             setTimeout(() => oscillator.stop(), duration);
         }
 
+        let intervalId = null;
+
         latencySlider.addEventListener('input', () => {
             latencyValue.textContent = latencySlider.value;
         });
 
+        frequencySlider.addEventListener('input', () => {
+            frequencyValue.textContent = frequencySlider.value;
+        });
+
         startButton.addEventListener('click', () => {
             const latency = parseInt(latencySlider.value);
+            const frequency = parseInt(frequencySlider.value);
 
-            // Start the animation
-            circle.style.transition = 'transform 0.5s';
-            circle.style.transform = 'scale(1.5)';
+            if (intervalId) clearInterval(intervalId);
 
-            setTimeout(() => {
-                playTone(200); // Play tone for 200ms
-            }, latency);
+            intervalId = setInterval(() => {
+                if (latency >= 0) {
+                    // Sound precedes or matches animation
+                    setTimeout(() => {
+                        playTone(200); // Play tone for 200ms
+                    }, latency);
 
-            // Reset the animation after 1 second
-            setTimeout(() => {
-                circle.style.transform = 'scale(1)';
-            }, 1000);
+                    // Start the animation
+                    setTimeout(() => {
+                        circle.style.transform = 'scale(2)';
+                        circle.style.backgroundColor = 'blue';
+
+                        // Reset the animation after 300ms
+                        setTimeout(() => {
+                            circle.style.transform = 'scale(1)';
+                            circle.style.backgroundColor = 'red';
+                        }, 300);
+                    }, latency);
+                } else {
+                    // Animation precedes sound
+                    const adjustedLatency = Math.abs(latency);
+
+                    circle.style.transform = 'scale(2)';
+                    circle.style.backgroundColor = 'blue';
+
+                    setTimeout(() => {
+                        circle.style.transform = 'scale(1)';
+                        circle.style.backgroundColor = 'red';
+                    }, 300);
+
+                    setTimeout(() => {
+                        playTone(200); // Play tone for 200ms
+                    }, adjustedLatency);
+                }
+            }, frequency);
+        });
+
+        stopButton.addEventListener('click', () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
         });
     </script>
 </body>
